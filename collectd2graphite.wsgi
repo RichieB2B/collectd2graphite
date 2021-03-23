@@ -1,5 +1,5 @@
+#!/usr/bin/env python3
 import os, sys, json, socket, time
-from string import maketrans
 
 ghost = "localhost"
 gport = 2003
@@ -34,7 +34,7 @@ def application(environ, start_response):
             if d['type_instance']:
                 if d['type'] == d['plugin']:
                     typestring = d['type_instance']
-		else:
+                else:
                     typestring = d['type'] + "-" + d['type_instance']
             else:
                 typestring = d['type']
@@ -47,7 +47,7 @@ def application(environ, start_response):
                 line = "{0} {1} {2}".format(metric, value, gtime)
                 lines.append(line)
 
-	if len(lines) > 0:
+        if len(lines) > 0:
             lines.append('')
 
             try:
@@ -61,8 +61,8 @@ def application(environ, start_response):
 
             if connected:
                 try:
-                    sock.sendall('\n'.join(lines))
-                except socket.error, e:
+                    sock.sendall(str('\n').join(lines).encode('utf-8'))
+                except socket.error as e:
                     status = '503 Service Unavailable'
                     connected = False
                     if isinstance(e.args, tuple):
@@ -74,10 +74,10 @@ def application(environ, start_response):
                         ('Content-Length', str(len(output)))]
     start_response(status, response_headers)
 
-    return [output]
+    return [output.encode('utf-8')]
 
 def graphiteFriendly(s):
-    t = dict((ord(char), u'_') for char in ' ,')
+    t = dict((ord(char), '_') for char in ' ,')
     t.update(dict((ord(char), None) for char in '+()"'))
     return s.translate(t)
 
